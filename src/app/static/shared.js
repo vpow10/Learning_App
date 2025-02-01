@@ -5,7 +5,6 @@ function saveReward(reward) {
     localStorage.setItem('rewards', JSON.stringify(rewards));
 }
 
-// Function to display rewards in the modal
 function showMyRewards() {
     const rewards = JSON.parse(localStorage.getItem('rewards')) || [];
     const rewardsContainer = document.getElementById('rewards-container');
@@ -14,17 +13,72 @@ function showMyRewards() {
     if (rewards.length === 0) {
         rewardsContainer.innerHTML = '<p>No rewards yet. Keep studying!</p>';
     } else {
-        rewards.forEach(reward => {
-            const rewardElement = document.createElement('div');
-            rewardElement.style.flex = '1 1 200px'; // Responsive layout
-            rewardElement.innerHTML = `
-                <img src="${reward.url}" alt="${reward.type}" style="width: 100%; border-radius: 10px;">
-                <p style="text-align: center; margin-top: 5px;">
-                    ${reward.type === 'LOL Skin' ? `${reward.champion} - ${reward.skin}` : reward.type} - ${reward.timestamp}
-                </p>
-            `;
-            rewardsContainer.appendChild(rewardElement);
-        });
+        // Separate rewards into LOL Skins and Animals
+        const lolSkins = rewards.filter(reward => reward.type === 'LOL Skin');
+        const animals = rewards.filter(reward => reward.type === 'Animal');
+
+        // Display LOL Skins
+        if (lolSkins.length > 0) {
+            const lolSection = document.createElement('div');
+            lolSection.innerHTML = '<h4>LOL Skins</h4>';
+            rewardsContainer.appendChild(lolSection);
+
+            const lolGrid = document.createElement('div');
+            lolGrid.style.display = 'flex';
+            lolGrid.style.flexWrap = 'wrap';
+            lolGrid.style.gap = '10px';
+            lolGrid.style.marginBottom = '20px'; // Add space between sections
+
+            lolSkins.forEach(reward => {
+                const rewardElement = document.createElement('div');
+                rewardElement.style.border = '2px solid #d8a7a7';
+                rewardElement.style.borderRadius = '10px';
+                rewardElement.style.padding = '10px';
+                rewardElement.style.width = '200px'; // Fixed width for each reward
+                rewardElement.style.textAlign = 'center';
+                rewardElement.innerHTML = `
+                    <img src="${reward.url}" alt="${reward.type}" style="width: 100%; border-radius: 8px;">
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        <strong>${reward.champion}</strong><br>
+                        ${reward.skin}<br>
+                        <small>${reward.timestamp}</small>
+                    </p>
+                `;
+                lolGrid.appendChild(rewardElement);
+            });
+
+            rewardsContainer.appendChild(lolGrid);
+        }
+
+        // Display Animals
+        if (animals.length > 0) {
+            const animalSection = document.createElement('div');
+            animalSection.innerHTML = '<h4>Animals</h4>';
+            rewardsContainer.appendChild(animalSection);
+
+            const animalGrid = document.createElement('div');
+            animalGrid.style.display = 'flex';
+            animalGrid.style.flexWrap = 'wrap';
+            animalGrid.style.gap = '10px';
+
+            animals.forEach(reward => {
+                const rewardElement = document.createElement('div');
+                rewardElement.style.border = '2px solid #d8a7a7';
+                rewardElement.style.borderRadius = '10px';
+                rewardElement.style.padding = '10px';
+                rewardElement.style.width = '200px'; // Fixed width for each reward
+                rewardElement.style.textAlign = 'center';
+                rewardElement.innerHTML = `
+                    <img src="${reward.url}" alt="${reward.type}" style="width: 100%; border-radius: 8px;">
+                    <p style="margin-top: 10px; font-size: 14px;">
+                        <small>${reward.timestamp}</small>
+                    </p>
+                `;
+                animalGrid.appendChild(rewardElement);
+            });
+
+            rewardsContainer.appendChild(animalGrid);
+        }
     }
 
     // Show the modal
