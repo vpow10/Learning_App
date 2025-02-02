@@ -81,7 +81,7 @@ async function showMyRewards() {
         rewardsContainer.appendChild(lolGrid);
     }
 
-    // Display Animal Rewards
+    // Display Animal Rewards (Now with multiple cute animal types!)
     if (animals.length > 0) {
         const animalSection = document.createElement('div');
         animalSection.innerHTML = '<h4>Animals</h4>';
@@ -102,6 +102,7 @@ async function showMyRewards() {
             rewardElement.innerHTML = `
                 <img src="${reward.url}" alt="${reward.type}" style="width: 100%; border-radius: 8px;">
                 <p style="margin-top: 10px; font-size: 14px;">
+                    <strong>${reward.animalType}</strong><br>
                     <small>${reward.timestamp}</small>
                 </p>
                 <button onclick="confirmDeleteReward('${reward.url}')" style="margin-top: 5px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
@@ -116,6 +117,7 @@ async function showMyRewards() {
     const myRewardsModal = new bootstrap.Modal(document.getElementById('myRewardsModal'));
     myRewardsModal.show();
 }
+
 
 
 // Function to confirm deletion
