@@ -7,139 +7,42 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background: url('/static/background.png') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Georgia', serif;
-            color: #8a4a4a;
-        }
-        .welcome-container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(3px);
-        }
-        .welcome-container h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #8a4a4a;
-        }
-        .welcome-container .lead {
-            font-size: 1.5rem;
-            color: #8a4a4a;
-        }
-        .welcome-container .btn {
-            margin: 10px;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            background-color: #d8a7a7;
-            border: none;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-        .welcome-container .btn:hover {
-            background-color: #b87c7c;
-        }
-        /* Cherry blossom animation */
-        @keyframes fall {
-            0% { transform: translateY(-100px) rotate(0deg); }
-            100% { transform: translateY(100vh) rotate(360deg); }
-        }
-        .cherry-blossom {
-            position: absolute;
-            top: -100px;
-            animation: fall 10s linear infinite;
-            color: #ff9a9a;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
     <!-- Cherry blossom animation -->
-    <div class="cherry-blossom" style="left: 10%;">🌸</div>
-    <div class="cherry-blossom" style="left: 20%; animation-delay: 2s;">🌸</div>
-    <div class="cherry-blossom" style="left: 30%; animation-delay: 4s;">🌸</div>
-    <div class="cherry-blossom" style="left: 40%; animation-delay: 6s;">🌸</div>
-    <div class="cherry-blossom" style="left: 50%; animation-delay: 8s;">🌸</div>
-    <div class="cherry-blossom" style="left: 60%; animation-delay: 10s;">🌸</div>
-    <div class="cherry-blossom" style="left: 70%; animation-delay: 12s;">🌸</div>
-    <div class="cherry-blossom" style="left: 80%; animation-delay: 14s;">🌸</div>
-    <div class="cherry-blossom" style="left: 90%; animation-delay: 16s;">🌸</div>
+    <div class="cherry-blossoms" aria-hidden="true">
+        <!-- Dynamically generated cherry blossoms -->
+    </div>
 
     <!-- Welcome container -->
-    <div class="welcome-container">
+    <main class="welcome-container">
         <h1>Choose Your Rewards</h1>
         <p class="lead">Select a category to explore:</p>
-        <div>
-            <div>
-                <a href="/timer?reward_type=lol_skins" class="btn">Lol Skins</a>
-                <a href="/timer?reward_type=animals" class="btn">Animals</a>
-            </div>
-        </div>
+        <nav>
+            <a href="/timer?reward_type=lol_skins" class="btn">LoL Skins</a>
+            <a href="/timer?reward_type=animals" class="btn">Animals</a>
+            <a href="/timer?reward_type=genshin_characters" class="btn">Genshin Characters</a>
+        </nav>
+
         <!-- My Rewards Button -->
-        <button id="my-rewards-button" style="position: fixed; top: 20px; right: 20px; padding: 10px 20px; background-color: #d8a7a7; border: none; color: white; cursor: pointer;">
-            My Rewards
-        </button>
+        <button id="my-rewards-button" class="floating-button">My Rewards</button>
+
         <!-- Home and Statistics Buttons -->
-        <div style="position: fixed; top: 20px; left: 20px; display: flex; gap: 10px;">
-            <a href="/" style="padding: 10px 20px; background-color: #d8a7a7; border: none; color: white; text-decoration: none; cursor: pointer;">
-                Home
-            </a>
-            <button id="statistics-button" style="padding: 10px 20px; background-color: #d8a7a7; border: none; color: white; cursor: pointer;">
-                Statistics
-            </button>
+        <div class="top-left-buttons">
+            <a href="/" class="floating-button">Home</a>
+            <button id="statistics-button" class="floating-button">Statistics</button>
         </div>
-    </div>
-    <!-- My Rewards Modal -->
-    <div class="modal fade" id="myRewardsModal" tabindex="-1" aria-labelledby="myRewardsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="myRewardsModalLabel">My Rewards</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="rewards-container">
-                        <!-- Rewards will be dynamically inserted here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Statistics Modal -->
-    <div class="modal fade" id="statisticsModal" tabindex="-1" aria-labelledby="statisticsModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="statisticsModalLabel">Session Statistics</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="statistics-container">
-                        <!-- Statistics will be dynamically inserted here -->
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
+
+    <!-- Modals container -->
+    <div id="modals-container"></div>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <!-- Include shared.js -->
-    <script src="/static/shared.js"></script>
+
+    <!-- Shared JavaScript -->
+    <script src="/static/js/shared.js"></script>
 </body>
 </html>

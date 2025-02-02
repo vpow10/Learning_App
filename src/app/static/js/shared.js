@@ -233,3 +233,22 @@ function deleteAnimalRewards() {
 function clearAllRewards() {
     localStorage.removeItem('rewards'); // Deletes only the rewards
 }
+
+// Dynamically generate cherry blossoms
+const cherryBlossomsContainer = document.querySelector('.cherry-blossoms');
+for (let i = 1; i <= 9; i++) {
+    const blossom = document.createElement('div');
+    blossom.className = 'cherry-blossom';
+    blossom.style.left = `${i * 10}%`;
+    blossom.style.animationDelay = `${i * 2}s`;
+    blossom.textContent = '🌸';
+    cherryBlossomsContainer.appendChild(blossom);
+}
+
+// Load modals
+fetch('/static/partials/modals.html')
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('modals-container').innerHTML = html;
+    })
+    .catch(err => console.warn('Error loading modals: ', err));
