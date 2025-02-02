@@ -12,11 +12,11 @@ function updateTimerDisplay() {
 function adjustTime(timerType, minutes) {
     if (timerType === 'learning') {
         learningTime += minutes;
-        if (learningTime < 5) learningTime = 1;
+        if (learningTime < 15) learningTime = 15;
         if (learningTime > 60) learningTime = 60;
     } else if (timerType === 'break') {
         breakTime += minutes;
-        if (breakTime < 1) breakTime = 1;
+        if (breakTime < 3) breakTime = 3;
         if (breakTime > 15) breakTime = 15;
     }
     updateTimerDisplay();

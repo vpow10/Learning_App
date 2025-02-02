@@ -133,53 +133,42 @@ async function showMyRewards() {
         rewardsContainer.appendChild(animalGrid);
     }
 
+    // Render Genshin Characters
     if (genshinRewards.length > 0) {
-        const genshinHeader = document.createElement('div');
-        genshinHeader.innerHTML = '<hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;">';
-        rewardsContainer.appendChild(genshinHeader);
+        const genshinSection = document.createElement('div');
+        genshinSection.innerHTML = '<hr style="border-top: 2px solid black; margin: 20px 0;"><h3>Genshin Characters</h3>';
+        rewardsContainer.appendChild(genshinSection);
+
+        const genshinGrid = document.createElement('div');
+        genshinGrid.style.display = 'flex';
+        genshinGrid.style.flexWrap = 'wrap';
+        genshinGrid.style.gap = '10px';
+
+        genshinRewards.forEach(reward => {
+            const rewardElement = document.createElement('div');
+            rewardElement.style.border = '2px solid #d8a7a7';
+            rewardElement.style.borderRadius = '10px';
+            rewardElement.style.padding = '10px';
+            rewardElement.style.width = '200px';
+            rewardElement.style.textAlign = 'center';
+            rewardElement.innerHTML = `
+                <img src="${reward.url}" alt="${reward.genshinCharacter}" style="width: 100%; border-radius: 8px;">
+                <p style="margin-top: 10px; font-size: 14px;">
+                    <strong>${reward.genshinCharacter}</strong><br>
+                    <small>${reward.timestamp}</small>
+                </p>
+                <button onclick="confirmDeleteReward('${reward.url}')" style="margin-top: 5px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+            `;
+            genshinGrid.appendChild(rewardElement);
+        });
+
+        rewardsContainer.appendChild(genshinGrid);
     }
-
-    // Display Genshin Characters
-if (genshinRewards.length > 0) {
-    const response = await fetch('https://genshin.jmp.blue/characters/all');
-    const allGenshinCharacters = await response.json();
-    const totalGenshinCharacters = allGenshinCharacters.length;
-
-    const genshinSection = document.createElement('div');
-    genshinSection.innerHTML = `<h4>Genshin Characters (${genshinRewards.length}/${totalGenshinCharacters})</h4>`;
-    rewardsContainer.appendChild(genshinSection);
-
-    const genshinGrid = document.createElement('div');
-    genshinGrid.style.display = 'flex';
-    genshinGrid.style.flexWrap = 'wrap';
-    genshinGrid.style.gap = '10px';
-
-    genshinRewards.forEach(reward => {
-        const rewardElement = document.createElement('div');
-        rewardElement.style.border = '2px solid #d8a7a7';
-        rewardElement.style.borderRadius = '10px';
-        rewardElement.style.padding = '10px';
-        rewardElement.style.width = '200px';
-        rewardElement.style.textAlign = 'center';
-        rewardElement.innerHTML = `
-            <img src="${reward.url}" alt="${reward.genshinCharacter}" style="width: 100%; border-radius: 8px;">
-            <p style="margin-top: 10px; font-size: 14px;">
-                <strong>${reward.genshinCharacter}</strong><br>
-                <small>${reward.timestamp}</small>
-            </p>
-            <button onclick="confirmDeleteReward('${reward.url}')" style="margin-top: 5px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
-        `;
-        genshinGrid.appendChild(rewardElement);
-    });
-
-    rewardsContainer.appendChild(genshinGrid);
-}
 
     // Show the modal
     const myRewardsModal = new bootstrap.Modal(document.getElementById('myRewardsModal'));
     myRewardsModal.show();
 }
-
 
 function confirmDeleteReward(url) {
     if (confirm('Are you sure you want to delete this reward?')) {
