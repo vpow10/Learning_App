@@ -184,35 +184,52 @@
             let champion = '';
             let skin = '';
 
+            // Get existing rewards from localStorage
+            const rewards = JSON.parse(localStorage.getItem('rewards')) || [];
+
             if (rewardType === 'lol_skins') {
-                // Fetch a random LOL skin splash art
                 const champions = ['Ahri', 'Lux', 'Seraphine', 'Lulu', 'Morgana',
                     'Yuumi', 'Sona', 'Janna', 'Zyra', 'Heimerdinger', 'Nami', 'Soraka',
                     'Jinx', 'MissFortune', 'Ashe', 'Caitlyn', 'Vayne', 'Jhin', 'Kaisa',
                     'Katarina', 'Samira', 'Leblanc', 'Senna', 'Smolder', 'Syndra', 'Xayah',
                 ];
-                const randomChampion = champions[Math.floor(Math.random() * champions.length)];
-                const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/13.19.1/data/en_US/champion/${randomChampion}.json`);
-                const data = await response.json();
-                const skins = data.data[randomChampion].skins;
-                const randomSkin = skins[Math.floor(Math.random() * (skins.length - 1)) + 1]; // Exclude default skin
-                imageUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion}_${randomSkin.num}.jpg`;
-                champion = randomChampion;
-                skin = randomSkin.name;
+
+                let isDuplicate = true;
+
+                while (isDuplicate) {
+                    const randomChampion = champions[Math.floor(Math.random() * champions.length)];
+                    const response = await fetch(`https://ddragon.leagueoflegends.com/cdn/13.19.1/data/en_US/champion/${randomChampion}.json`);
+                    const data = await response.json();
+                    const skins = data.data[randomChampion].skins;
+                    const randomSkin = skins[Math.floor(Math.random() * (skins.length - 1)) + 1]; // Exclude default skin
+                    imageUrl = `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${randomChampion}_${randomSkin.num}.jpg`;
+                    champion = randomChampion;
+                    skin = randomSkin.name;
+
+                    // Check if the reward is a duplicate
+                    isDuplicate = rewards.some(r => r.champion === champion && r.skin === skin);
+                }
+
             } else {
-                // Fetch a random cute animal image
-                const response = await fetch('https://api.thecatapi.com/v1/images/search');
-                const data = await response.json();
-                imageUrl = data[0].url;
+                let isDuplicate = true;
+
+                while (isDuplicate) {
+                    const response = await fetch('https://api.thecatapi.com/v1/images/search');
+                    const data = await response.json();
+                    imageUrl = data[0].url;
+
+                    // Check if the reward is a duplicate
+                    isDuplicate = rewards.some(r => r.url === imageUrl);
+                }
             }
 
             // Save the reward to localStorage
             const reward = {
                 type: rewardTypeName,
                 url: imageUrl,
-                timestamp: new Date().toLocaleString(), // Add a timestamp
-                champion: champion, // Include champion name for LOL skins
-                skin: skin // Include skin name for LOL skins
+                timestamp: new Date().toLocaleString(),
+                champion: champion,
+                skin: skin
             };
             saveReward(reward);
 
@@ -230,6 +247,7 @@
             const rewardModal = new bootstrap.Modal(document.getElementById('rewardModal'));
             rewardModal.show();
         }
+
         function saveReward(reward) {
             // Get existing rewards from localStorage
             const rewards = JSON.parse(localStorage.getItem('rewards')) || [];
