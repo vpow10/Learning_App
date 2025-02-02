@@ -22,10 +22,11 @@ function updateTimerDisplay() {
 
 async function showReward() {
     let imageUrl = '';
-    let rewardTypeName = rewardType === 'lol_skins' ? 'LOL Skin' : 'Animal';
+    let rewardTypeName = rewardType === 'lol_skins' ? 'LOL Skin' : rewardType === 'animals' ? 'Animal' : 'Genshin Character';
     let champion = '';
     let skin = '';
     let animalType = '';
+    let genshinCharacter = '';
 
     // Get existing rewards from localStorage
     const rewards = JSON.parse(localStorage.getItem('rewards')) || [];
@@ -49,14 +50,12 @@ async function showReward() {
             champion = randomChampion;
             skin = randomSkin.name;
 
-            // Check if the reward is a duplicate
             isDuplicate = rewards.some(r => r.champion === champion && r.skin === skin);
         }
 
-    } else {
+    } else if (rewardType === 'animals') {
         let isDuplicate = true;
 
-        // Available animal APIs
         const animalApis = [
             { type: 'Cat', url: 'https://api.thecatapi.com/v1/images/search' },
             { type: 'Dog', url: 'https://api.thedogapi.com/v1/images/search' },
@@ -65,7 +64,6 @@ async function showReward() {
         ];
 
         while (isDuplicate) {
-            // Randomly select an API to use
             const randomAnimalApi = animalApis[Math.floor(Math.random() * animalApis.length)];
             animalType = randomAnimalApi.type;
 
@@ -81,40 +79,75 @@ async function showReward() {
                     imageUrl = data[0].url;
                 }
 
-                // Check if the reward is a duplicate
                 isDuplicate = rewards.some(r => r.url === imageUrl);
             } catch (error) {
                 console.error(`Error fetching ${animalType} image:`, error);
-                isDuplicate = false; // Prevent infinite loop in case of API failure
+                isDuplicate = false;
+            }
+        }
+
+    } else if (rewardType === 'genshin_characters') {
+        let isDuplicate = true;
+
+        while (isDuplicate) {
+            try {
+                // Fetch character data from an alternative API
+                const response = await fetch('https://api.genshin.dev/characters');
+                const characterIds = await response.json();
+
+                // Select a random character ID
+                const randomCharacterId = characterIds[Math.floor(Math.random() * characterIds.length)];
+
+                // Fetch details for the selected character
+                const characterResponse = await fetch(`https://api.genshin.dev/characters/${randomCharacterId}`);
+                const characterData = await characterResponse.json();
+
+                // Set the character name and image URL
+                genshinCharacter = characterData.name;
+                imageUrl = `https://api.genshin.dev/characters/${randomCharacterId}/gacha-splash`;
+
+                // Check if the image URL is valid
+                const imageResponse = await fetch(imageUrl);
+                if (!imageResponse.ok) {
+                    throw new Error('Invalid image URL');
+                }
+
+                // Check for duplicates
+                isDuplicate = rewards.some(r => r.genshinCharacter === genshinCharacter);
+            } catch (error) {
+                console.error('Error fetching Genshin character image:', error);
+                isDuplicate = false;
             }
         }
     }
 
-    // Save the reward to localStorage
     const reward = {
         type: rewardTypeName,
         url: imageUrl,
         timestamp: new Date().toLocaleString(),
         champion: champion,
         skin: skin,
-        animalType: rewardType === 'lol_skins' ? null : animalType
+        animalType: rewardType === 'animals' ? animalType : null,
+        genshinCharacter: rewardType === 'genshin_characters' ? genshinCharacter : null
     };
     saveReward(reward);
 
-    // Display the reward in the pop-up
     const rewardImage = document.getElementById('rewardImage');
     const rewardTitle = document.getElementById('rewardTitle');
     rewardImage.src = imageUrl;
 
     if (rewardType === 'lol_skins') {
         rewardTitle.textContent = `Your Reward: ${champion} - ${skin}`;
-    } else {
+    } else if (rewardType === 'animals') {
         rewardTitle.textContent = `Your Reward: Cute ${animalType}!`;
+    } else {
+        rewardTitle.textContent = `Your Reward: ${genshinCharacter}`;
     }
 
     const rewardModal = new bootstrap.Modal(document.getElementById('rewardModal'));
     rewardModal.show();
 }
+
 
 function saveReward(reward) {
     // Get existing rewards from localStorage

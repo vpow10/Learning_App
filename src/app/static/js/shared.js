@@ -9,15 +9,18 @@ async function showMyRewards() {
     const rewards = JSON.parse(localStorage.getItem('rewards')) || [];
     const rewardsContainer = document.getElementById('rewards-container');
     rewardsContainer.innerHTML = ''; // Clear previous content
+    rewardsContainer.innerHTML =
+    '<hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;"><h3>LOL Skins</h3><hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;">';
 
     if (rewards.length === 0) {
         rewardsContainer.innerHTML = '<p>No rewards yet. Keep studying!</p>';
         return;
     }
 
-    // Group rewards by champion (only for LOL Skins)
+    // Group rewards by type
     const lolRewards = rewards.filter(reward => reward.type === 'LOL Skin');
     const animals = rewards.filter(reward => reward.type === 'Animal');
+    const genshinRewards = rewards.filter(reward => reward.type === 'Genshin Character');
 
     const groupedLolRewards = {};
     lolRewards.forEach(reward => {
@@ -81,10 +84,27 @@ async function showMyRewards() {
         rewardsContainer.appendChild(lolGrid);
     }
 
-    // Display Animal Rewards (Now with multiple cute animal types!)
+    // Add horizontal black line and "Animals" text before the first animal reward
     if (animals.length > 0) {
+        const animalsHeader = document.createElement('div');
+        animalsHeader.innerHTML =
+        '<hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;"><h3>Animals</h3><hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;">';
+        rewardsContainer.appendChild(animalsHeader);
+    }
+
+    // Group Animal Rewards by Type
+    const groupedAnimals = {};
+    animals.forEach(reward => {
+        if (!groupedAnimals[reward.animalType]) {
+            groupedAnimals[reward.animalType] = [];
+        }
+        groupedAnimals[reward.animalType].push(reward);
+    });
+
+    // Display Animal Rewards grouped by type
+    for (const [animalType, animalList] of Object.entries(groupedAnimals)) {
         const animalSection = document.createElement('div');
-        animalSection.innerHTML = '<h4>Animals</h4>';
+        animalSection.innerHTML = `<h4>${animalType}</h4>`;
         rewardsContainer.appendChild(animalSection);
 
         const animalGrid = document.createElement('div');
@@ -92,7 +112,7 @@ async function showMyRewards() {
         animalGrid.style.flexWrap = 'wrap';
         animalGrid.style.gap = '10px';
 
-        animals.forEach(reward => {
+        animalList.forEach(reward => {
             const rewardElement = document.createElement('div');
             rewardElement.style.border = '2px solid #d8a7a7';
             rewardElement.style.borderRadius = '10px';
@@ -100,7 +120,7 @@ async function showMyRewards() {
             rewardElement.style.width = '200px';
             rewardElement.style.textAlign = 'center';
             rewardElement.innerHTML = `
-                <img src="${reward.url}" alt="${reward.type}" style="width: 100%; border-radius: 8px;">
+                <img src="${reward.url}" alt="${reward.animalType}" style="width: 100%; border-radius: 8px;">
                 <p style="margin-top: 10px; font-size: 14px;">
                     <strong>${reward.animalType}</strong><br>
                     <small>${reward.timestamp}</small>
@@ -113,26 +133,73 @@ async function showMyRewards() {
         rewardsContainer.appendChild(animalGrid);
     }
 
+    if (genshinRewards.length > 0) {
+        const genshinHeader = document.createElement('div');
+        genshinHeader.innerHTML = '<hr style="border-top: 2px solid #d8a7a7; margin: 20px 0;">';
+        rewardsContainer.appendChild(genshinHeader);
+    }
+
+    // Display Genshin Characters
+if (genshinRewards.length > 0) {
+    const response = await fetch('https://genshin.jmp.blue/characters/all');
+    const allGenshinCharacters = await response.json();
+    const totalGenshinCharacters = allGenshinCharacters.length;
+
+    const genshinSection = document.createElement('div');
+    genshinSection.innerHTML = `<h4>Genshin Characters (${genshinRewards.length}/${totalGenshinCharacters})</h4>`;
+    rewardsContainer.appendChild(genshinSection);
+
+    const genshinGrid = document.createElement('div');
+    genshinGrid.style.display = 'flex';
+    genshinGrid.style.flexWrap = 'wrap';
+    genshinGrid.style.gap = '10px';
+
+    genshinRewards.forEach(reward => {
+        const rewardElement = document.createElement('div');
+        rewardElement.style.border = '2px solid #d8a7a7';
+        rewardElement.style.borderRadius = '10px';
+        rewardElement.style.padding = '10px';
+        rewardElement.style.width = '200px';
+        rewardElement.style.textAlign = 'center';
+        rewardElement.innerHTML = `
+            <img src="${reward.url}" alt="${reward.genshinCharacter}" style="width: 100%; border-radius: 8px;">
+            <p style="margin-top: 10px; font-size: 14px;">
+                <strong>${reward.genshinCharacter}</strong><br>
+                <small>${reward.timestamp}</small>
+            </p>
+            <button onclick="confirmDeleteReward('${reward.url}')" style="margin-top: 5px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+        `;
+        genshinGrid.appendChild(rewardElement);
+    });
+
+    rewardsContainer.appendChild(genshinGrid);
+}
+
     // Show the modal
     const myRewardsModal = new bootstrap.Modal(document.getElementById('myRewardsModal'));
     myRewardsModal.show();
 }
 
 
-
-// Function to confirm deletion
 function confirmDeleteReward(url) {
-    if (confirm('Are you sure you want to delete this reward? This action cannot be undone.')) {
+    if (confirm('Are you sure you want to delete this reward?')) {
         deleteReward(url);
     }
 }
 
-// Function to delete a reward
 function deleteReward(url) {
     let rewards = JSON.parse(localStorage.getItem('rewards')) || [];
-    rewards = rewards.filter(reward => reward.url !== url); // Remove selected reward
+    rewards = rewards.filter(reward => reward.url !== url);
     localStorage.setItem('rewards', JSON.stringify(rewards));
-    showMyRewards(); // Refresh the rewards display
+
+    // Force UI refresh
+    const rewardsContainer = document.getElementById('rewards-container');
+    rewardsContainer.innerHTML = ''; // Clear the container immediately
+
+    // Add a small delay to ensure the UI updates
+    setTimeout(() => {
+        showMyRewards();
+    }, 100);
 }
 
 
